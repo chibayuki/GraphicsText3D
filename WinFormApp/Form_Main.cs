@@ -209,10 +209,6 @@ namespace WinFormApp
 
             Bitmap ProjBmp = new Bitmap(Math.Max(1, (Int32)ImageSize.Width), Math.Max(1, (Int32)ImageSize.Height));
 
-            Graphics CreateProjBmp = Graphics.FromImage(ProjBmp);
-
-            CreateProjBmp.SmoothingMode = SmoothingMode.AntiAlias;
-
             //
 
             Com.PointD3D CubeCenter = new Com.PointD3D(0, 0, 0);
@@ -259,15 +255,6 @@ namespace WinFormApp
                 case Views.ZX: PrjCenter3D.Y -= (TrueLenDist3D + CubeDiag / 2); break;
             }
 
-            Com.PointD P2D_000 = new Com.PointD();
-            Com.PointD P2D_100 = new Com.PointD();
-            Com.PointD P2D_010 = new Com.PointD();
-            Com.PointD P2D_110 = new Com.PointD();
-            Com.PointD P2D_001 = new Com.PointD();
-            Com.PointD P2D_101 = new Com.PointD();
-            Com.PointD P2D_011 = new Com.PointD();
-            Com.PointD P2D_111 = new Com.PointD();
-
             Func<Com.PointD3D, Com.PointD3D, double, Com.PointD> GetProject3D = (Pt, PrjCenter, TrueLenDist) =>
             {
                 switch (View)
@@ -279,14 +266,14 @@ namespace WinFormApp
                 }
             };
 
-            P2D_000 = GetProject3D(P3D_000, PrjCenter3D, TrueLenDist3D);
-            P2D_100 = GetProject3D(P3D_100, PrjCenter3D, TrueLenDist3D);
-            P2D_010 = GetProject3D(P3D_010, PrjCenter3D, TrueLenDist3D);
-            P2D_110 = GetProject3D(P3D_110, PrjCenter3D, TrueLenDist3D);
-            P2D_001 = GetProject3D(P3D_001, PrjCenter3D, TrueLenDist3D);
-            P2D_101 = GetProject3D(P3D_101, PrjCenter3D, TrueLenDist3D);
-            P2D_011 = GetProject3D(P3D_011, PrjCenter3D, TrueLenDist3D);
-            P2D_111 = GetProject3D(P3D_111, PrjCenter3D, TrueLenDist3D);
+            Com.PointD P2D_000 = GetProject3D(P3D_000, PrjCenter3D, TrueLenDist3D);
+            Com.PointD P2D_100 = GetProject3D(P3D_100, PrjCenter3D, TrueLenDist3D);
+            Com.PointD P2D_010 = GetProject3D(P3D_010, PrjCenter3D, TrueLenDist3D);
+            Com.PointD P2D_110 = GetProject3D(P3D_110, PrjCenter3D, TrueLenDist3D);
+            Com.PointD P2D_001 = GetProject3D(P3D_001, PrjCenter3D, TrueLenDist3D);
+            Com.PointD P2D_101 = GetProject3D(P3D_101, PrjCenter3D, TrueLenDist3D);
+            Com.PointD P2D_011 = GetProject3D(P3D_011, PrjCenter3D, TrueLenDist3D);
+            Com.PointD P2D_111 = GetProject3D(P3D_111, PrjCenter3D, TrueLenDist3D);
 
             Com.PointD BitmapCenter = new Com.PointD(ProjBmp.Size) / 2;
 
@@ -301,194 +288,418 @@ namespace WinFormApp
 
             //
 
-            List<Com.PointD3D[]> Side3D = new List<Com.PointD3D[]>()
+            List<Com.PointD3D[]> Element3D = new List<Com.PointD3D[]>(18)
             {
-                // XY
+                // XY 面
                 new Com.PointD3D[] { P3D_000, P3D_010, P3D_110, P3D_100 },
                 new Com.PointD3D[] { P3D_001, P3D_011, P3D_111, P3D_101 },
 
-                // YZ
+                // YZ 面
                 new Com.PointD3D[] { P3D_000, P3D_001, P3D_011, P3D_010 },
                 new Com.PointD3D[] { P3D_100, P3D_101, P3D_111, P3D_110 },
 
-                // ZX
+                // ZX 面
                 new Com.PointD3D[] { P3D_000, P3D_001, P3D_101, P3D_100 },
-                new Com.PointD3D[] { P3D_010, P3D_011, P3D_111, P3D_110 }
-            };
-
-            List<PointF[]> Side2D = new List<PointF[]>()
-            {
-                // XY
-                new PointF[] { P_000, P_010, P_110, P_100 },
-                new PointF[] { P_001, P_011, P_111, P_101 },
-
-                // YZ
-                new PointF[] { P_000, P_001, P_011, P_010 },
-                new PointF[] { P_100, P_101, P_111, P_110 },
-
-                // ZX
-                new PointF[] { P_000, P_001, P_101, P_100 },
-                new PointF[] { P_010, P_011, P_111, P_110 }
-            };
-
-            List<Color> SideColor = new List<Color>()
-            {
-                // XY
-                Colors.Side,
-                Colors.Side,
-
-                // YZ
-                Colors.Side,
-                Colors.Side,
-
-                // ZX
-                Colors.Side,
-                Colors.Side
-            };
-
-            List<Com.PointD3D[]> Line3D = new List<Com.PointD3D[]>()
-            {
-                // X
+                new Com.PointD3D[] { P3D_010, P3D_011, P3D_111, P3D_110 },
+                        
+                // X 棱
                 new Com.PointD3D[] { P3D_000, P3D_100 },
                 new Com.PointD3D[] { P3D_010, P3D_110 },
                 new Com.PointD3D[] { P3D_001, P3D_101 },
                 new Com.PointD3D[] { P3D_011, P3D_111 },
 
-                // Y
+                // Y 棱
                 new Com.PointD3D[] { P3D_000, P3D_010 },
                 new Com.PointD3D[] { P3D_100, P3D_110 },
                 new Com.PointD3D[] { P3D_001, P3D_011 },
                 new Com.PointD3D[] { P3D_101, P3D_111 },
 
-                // Z
+                // Z 棱
                 new Com.PointD3D[] { P3D_000, P3D_001 },
                 new Com.PointD3D[] { P3D_100, P3D_101 },
                 new Com.PointD3D[] { P3D_010, P3D_011 },
                 new Com.PointD3D[] { P3D_110, P3D_111 }
             };
 
-            List<PointF[]> Line2D = new List<PointF[]>()
+            List<PointF[]> Element2D = new List<PointF[]>(18)
             {
-                // X
+                // XY 面
+                new PointF[] { P_000, P_010, P_110, P_100 },
+                new PointF[] { P_001, P_011, P_111, P_101 },
+
+                // YZ 面
+                new PointF[] { P_000, P_001, P_011, P_010 },
+                new PointF[] { P_100, P_101, P_111, P_110 },
+
+                // ZX 面
+                new PointF[] { P_000, P_001, P_101, P_100 },
+                new PointF[] { P_010, P_011, P_111, P_110 },
+                        
+                // X 棱
                 new PointF[] { P_000, P_100 },
                 new PointF[] { P_010, P_110 },
                 new PointF[] { P_001, P_101 },
                 new PointF[] { P_011, P_111 },
 
-                // Y
+                // Y 棱
                 new PointF[] { P_000, P_010 },
                 new PointF[] { P_100, P_110 },
                 new PointF[] { P_001, P_011 },
                 new PointF[] { P_101, P_111 },
 
-                // Z
+                // Z 棱
                 new PointF[] { P_000, P_001 },
                 new PointF[] { P_100, P_101 },
                 new PointF[] { P_010, P_011 },
                 new PointF[] { P_110, P_111 }
             };
 
-            List<Color> LineColor = new List<Color>()
+            //
+
+            Color color = Me.RecommendColors.Main_DEC.AtAlpha(192).ToColor();
+            Com.PointD3D illuminationDirection = new Com.PointD3D(-0.5, 1, 0.5);
+            double exposure = 0;
+
+            List<double> IlluminationIntensity = new List<double>(Element3D.Count);
+
+            double Exposure = Math.Max(-2, Math.Min(exposure / 50, 2));
+
+            if (illuminationDirection.IsEmpty)
             {
-                // X
-                Colors.X,
-                Colors.Line,
-                Colors.Line,
-                Colors.Line,
-
-                // Y
-                Colors.Y,
-                Colors.Line,
-                Colors.Line,
-                Colors.Line,
-
-                // Z
-                Colors.Z,
-                Colors.Line,
-                Colors.Line,
-                Colors.Line
-            };
-
-            Func<Com.PointD3D, Int32, Int32, Int32> GetAlphaOfPoint = (Pt, MinAlpha, MaxAlpha) =>
-            {
-                switch (View)
+                for (int i = 0; i < 6; i++)
                 {
-                    case Views.XY: return (Int32)Math.Max(0, Math.Min(((Pt.Z - CubeCenter.Z) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
-                    case Views.YZ: return (Int32)Math.Max(0, Math.Min(((Pt.X - CubeCenter.X) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
-                    case Views.ZX: return (Int32)Math.Max(0, Math.Min(((Pt.Y - CubeCenter.Y) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
-                    default:
-                        return 0;
-                }
-            };
-
-            Func<Int32, Brush> GetBrushOfSide = (Index) =>
-            {
-                const Int32 _MinAlpha = 16, _MaxAlpha = 48;
-
-                Com.PointD3D Pt_Avg = new Com.PointD3D(0, 0, 0);
-
-                foreach (Com.PointD3D Pt in Side3D[Index])
-                {
-                    Pt_Avg += Pt;
+                    IlluminationIntensity.Add(Exposure);
                 }
 
-                Pt_Avg /= Side3D[Index].Length;
-
-                return new SolidBrush(Color.FromArgb(GetAlphaOfPoint(Pt_Avg, _MinAlpha, _MaxAlpha), SideColor[Index]));
-            };
-
-            Func<Int32, Brush> GetBrushOfLine = (Index) =>
-            {
-                const Int32 _MinAlpha = 32, _MaxAlpha = 96;
-
-                if (Com.PointD.DistanceBetween(new Com.PointD(Line2D[Index][0]), new Com.PointD(Line2D[Index][1])) > 1)
+                for (int i = 6; i < Element3D.Count; i++)
                 {
-                    Int32 Alpha0 = GetAlphaOfPoint(Line3D[Index][0], _MinAlpha, _MaxAlpha), Alpha1 = GetAlphaOfPoint(Line3D[Index][1], _MinAlpha, _MaxAlpha);
+                    IlluminationIntensity.Add((Math.Sqrt(2) / 2) * (Exposure + 1) + (Exposure - 1));
+                }
+            }
+            else
+            {
+                List<Com.PointD3D> NormalVector = new List<Com.PointD3D>(6)
+                    {
+                        // XY 面
+                        new Com.PointD3D(0, 0, -1),
+                        new Com.PointD3D(0, 0, 1),
 
-                    return new LinearGradientBrush(Line2D[Index][0], Line2D[Index][1], Color.FromArgb(Alpha0, LineColor[Index]), Color.FromArgb(Alpha1, LineColor[Index]));
+                        // YZ 面
+                        new Com.PointD3D(-1, 0, 0),
+                        new Com.PointD3D(1, 0, 0),
+
+                        // ZX 面
+                        new Com.PointD3D(0, -1, 0),
+                        new Com.PointD3D(0, 1, 0),
+                    };
+
+                Com.PointD3D NewOrigin = new Com.PointD3D(0, 0, 0).AffineTransformCopy(AffineMatrix);
+
+                for (int i = 0; i < NormalVector.Count; i++)
+                {
+                    NormalVector[i] = NormalVector[i].AffineTransformCopy(AffineMatrix) - NewOrigin;
+                }
+
+                List<double> Angle = new List<double>(NormalVector.Count);
+
+                for (int i = 0; i < NormalVector.Count; i++)
+                {
+                    Angle.Add(illuminationDirection.AngleFrom(NormalVector[i]));
+                }
+
+                for (int i = 0; i < Angle.Count; i++)
+                {
+                    double A = Angle[i];
+                    double CosA = Math.Cos(A);
+                    double CosSqrA = CosA * CosA;
+
+                    double _IlluminationIntensity = (A < Math.PI / 2 ? -CosSqrA : (A > Math.PI / 2 ? CosSqrA : 0));
+
+                    if (color.A < 255 && A != Math.PI / 2)
+                    {
+                        double Transmittance = 1 - (double)color.A / 255;
+
+                        if (A < Math.PI / 2)
+                        {
+                            _IlluminationIntensity += (Transmittance * Math.Abs(CosA) * CosSqrA);
+                        }
+                        else
+                        {
+                            _IlluminationIntensity -= ((1 - Transmittance) * (1 - Math.Abs(CosA)) * CosSqrA);
+                        }
+                    }
+
+                    _IlluminationIntensity += Exposure;
+
+                    IlluminationIntensity.Add(_IlluminationIntensity);
+                }
+
+                for (int i = 6; i < Element3D.Count; i++)
+                {
+                    double _IlluminationIntensity = 0;
+
+                    int Num = 0;
+
+                    for (int j = 0; j < 6; j++)
+                    {
+                        bool Flag = true;
+
+                        foreach (Com.PointD3D P in Element3D[i])
+                        {
+                            if (!Element3D[j].Contains(P))
+                            {
+                                Flag = false;
+
+                                break;
+                            }
+                        }
+
+                        if (Flag)
+                        {
+                            _IlluminationIntensity += IlluminationIntensity[j];
+
+                            Num++;
+                        }
+                    }
+
+                    _IlluminationIntensity = (Math.Sqrt(2) / 2) * (_IlluminationIntensity / Num + 1) + (Exposure - 1);
+
+                    IlluminationIntensity.Add(_IlluminationIntensity);
+                }
+            }
+
+            for (int i = 0; i < IlluminationIntensity.Count; i++)
+            {
+                IlluminationIntensity[i] = Math.Max(-1, Math.Min(IlluminationIntensity[i], 1));
+            }
+
+            //
+
+            List<Color> ElementColor = new List<Color>(IlluminationIntensity.Count);
+
+            for (int i = 0; i < IlluminationIntensity.Count; i++)
+            {
+                double _IlluminationIntensity = IlluminationIntensity[i];
+
+                Color ECr;
+
+                switch (i)
+                {
+                    case 6: ECr = Colors.X; break;
+                    case 10: ECr = Colors.Y; break;
+                    case 14: ECr = Colors.Z; break;
+                    default: ECr = color; break;
+                }
+
+                if (_IlluminationIntensity == 0)
+                {
+                    ElementColor.Add(ECr);
                 }
                 else
                 {
-                    Int32 Alpha0 = GetAlphaOfPoint(Line3D[Index][0], _MinAlpha, _MaxAlpha);
+                    Com.ColorX EColor = new Com.ColorX(ECr);
 
-                    return new SolidBrush(Color.FromArgb(Alpha0, LineColor[Index]));
+                    if (_IlluminationIntensity < 0)
+                    {
+                        EColor.Lightness_HSL += EColor.Lightness_HSL * _IlluminationIntensity;
+                    }
+                    else
+                    {
+                        EColor.Lightness_HSL += (100 - EColor.Lightness_HSL) * _IlluminationIntensity;
+                    }
+
+                    ElementColor.Add(EColor.ToColor());
                 }
-            };
-
-            for (int i = 0; i < Side2D.Count; i++)
-            {
-                CreateProjBmp.FillPolygon(GetBrushOfSide(i), Side2D[i]);
             }
-
-            for (int i = 0; i < Line2D.Count; i++)
-            {
-                CreateProjBmp.DrawLine(new Pen(GetBrushOfLine(i), 2F), Line2D[i][0], Line2D[i][1]);
-            }
-
-            CreateProjBmp.DrawString("X", new Font("微软雅黑", 9F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Color.FromArgb(GetAlphaOfPoint(P3D_100, 64, 192), Colors.X)), P_100);
-            CreateProjBmp.DrawString("Y", new Font("微软雅黑", 9F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Color.FromArgb(GetAlphaOfPoint(P3D_010, 64, 192), Colors.Y)), P_010);
-            CreateProjBmp.DrawString("Z", new Font("微软雅黑", 9F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Color.FromArgb(GetAlphaOfPoint(P3D_001, 64, 192), Colors.Z)), P_001);
 
             //
 
-            string ViewName = string.Empty;
+            List<double> ElementZAvg = new List<double>(Element3D.Count);
 
-            switch (View)
+            for (int i = 0; i < Element3D.Count; i++)
             {
-                case Views.XY: ViewName = "XY 视图 (主视图)"; break;
-                case Views.YZ: ViewName = "YZ 视图"; break;
-                case Views.ZX: ViewName = "ZX 视图"; break;
+                Com.PointD3D[] Element = Element3D[i];
+
+                double ZAvg = 0;
+
+                foreach (Com.PointD3D P in Element)
+                {
+                    switch (View)
+                    {
+                        case Views.XY: ZAvg += P.Z; break;
+                        case Views.YZ: ZAvg += P.X; break;
+                        case Views.ZX: ZAvg += P.Y; break;
+                    }
+                }
+
+                ZAvg /= Element.Length;
+
+                ElementZAvg.Add(ZAvg);
             }
 
-            CreateProjBmp.DrawString(ViewName, new Font("微软雅黑", 10F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Colors.Text), new PointF(Math.Max(0, (ProjBmp.Width - ProjBmp.Height) / 2), Math.Max(0, (ProjBmp.Height - ProjBmp.Width) / 2)));
+            List<int> ElementIndex = new List<int>(ElementZAvg.Count);
+
+            for (int i = 0; i < ElementZAvg.Count; i++)
+            {
+                ElementIndex.Add(i);
+            }
+
+            for (int i = 0; i < ElementZAvg.Count; i++)
+            {
+                for (int j = i + 1; j < ElementZAvg.Count; j++)
+                {
+                    if (ElementZAvg[ElementIndex[i]] < ElementZAvg[ElementIndex[j]] || (ElementZAvg[ElementIndex[i]] <= ElementZAvg[ElementIndex[j]] + 2F && Element2D[ElementIndex[i]].Length < Element2D[ElementIndex[j]].Length))
+                    {
+                        int Temp = ElementIndex[i];
+                        ElementIndex[i] = ElementIndex[j];
+                        ElementIndex[j] = Temp;
+                    }
+                }
+            }
 
             //
 
-            CreateProjBmp.DrawRectangle(new Pen(Color.FromArgb(64, Colors.Border), 1F), new Rectangle(new Point(0, 0), ProjBmp.Size));
+            using (Graphics Grph = Graphics.FromImage(ProjBmp))
+            {
+                Grph.SmoothingMode = SmoothingMode.AntiAlias;
 
-            //
+                //
 
-            CreateProjBmp.Dispose();
+                for (int i = 0; i < ElementIndex.Count; i++)
+                {
+                    int EIndex = ElementIndex[i];
+
+                    Color EColor = ElementColor[EIndex];
+
+                    if (!EColor.IsEmpty && EColor.A > 0)
+                    {
+                        PointF[] Element = Element2D[EIndex];
+
+                        if (Element.Length >= 3)
+                        {
+                            try
+                            {
+                                using (SolidBrush Br = new SolidBrush(EColor))
+                                {
+                                    Grph.FillPolygon(Br, Element);
+                                }
+                            }
+                            catch { }
+                        }
+                        else if (Element.Length == 2)
+                        {
+                            double PrjZ = 0;
+
+                            switch (View)
+                            {
+                                case Views.XY: PrjZ = PrjCenter3D.Z; break;
+                                case Views.YZ: PrjZ = PrjCenter3D.X; break;
+                                case Views.ZX: PrjZ = PrjCenter3D.Y; break;
+                            }
+
+                            float EdgeWidth = (TrueLenDist3D == 0 ? 2F : (float)(TrueLenDist3D / (ElementZAvg[EIndex] - PrjZ) * 2F));
+
+                            try
+                            {
+                                Brush Br;
+
+                                Func<Color, double, int> GetAlpha = (Cr, Z) =>
+                                {
+                                    int Alpha;
+
+                                    if (TrueLenDist3D == 0)
+                                    {
+                                        Alpha = Cr.A;
+                                    }
+                                    else
+                                    {
+                                        if (Z - PrjZ <= TrueLenDist3D)
+                                        {
+                                            Alpha = Cr.A;
+                                        }
+                                        else
+                                        {
+                                            Alpha = (int)Math.Max(0, Math.Min(TrueLenDist3D / (Z - PrjZ) * Cr.A, 255));
+                                        }
+                                    }
+
+                                    if (EdgeWidth < 1)
+                                    {
+                                        Alpha = (int)(Alpha * EdgeWidth);
+                                    }
+
+                                    return Alpha;
+                                };
+
+                                if (Com.PointD.DistanceBetween(new Com.PointD(Element[0]), new Com.PointD(Element[1])) > 1)
+                                {
+                                    int Alpha0 = 0, Alpha1 = 0;
+
+                                    switch (View)
+                                    {
+                                        case Views.XY: Alpha0 = GetAlpha(EColor, Element3D[EIndex][0].Z); Alpha1 = GetAlpha(EColor, Element3D[EIndex][1].Z); break;
+                                        case Views.YZ: Alpha0 = GetAlpha(EColor, Element3D[EIndex][0].X); Alpha1 = GetAlpha(EColor, Element3D[EIndex][1].X); break;
+                                        case Views.ZX: Alpha0 = GetAlpha(EColor, Element3D[EIndex][0].Y); Alpha1 = GetAlpha(EColor, Element3D[EIndex][1].Y); break;
+                                    }
+
+                                    Br = new LinearGradientBrush(Element[0], Element[1], Color.FromArgb(Alpha0, EColor), Color.FromArgb(Alpha1, EColor));
+                                }
+                                else
+                                {
+                                    int Alpha = GetAlpha(EColor, ElementZAvg[EIndex]);
+
+                                    Br = new SolidBrush(Color.FromArgb(Alpha, EColor));
+                                }
+
+                                using (Pen Pn = new Pen(Br, EdgeWidth))
+                                {
+                                    Grph.DrawLines(Pn, Element);
+                                }
+
+                                if (Br != null)
+                                {
+                                    Br.Dispose();
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+                }
+
+                //
+
+                Func<Com.PointD3D, Int32, Int32, Int32> GetAlphaOfPoint = (Pt, MinAlpha, MaxAlpha) =>
+                {
+                    switch (View)
+                    {
+                        case Views.XY: return (Int32)Math.Max(0, Math.Min(((Pt.Z - CubeCenter.Z) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
+                        case Views.YZ: return (Int32)Math.Max(0, Math.Min(((Pt.X - CubeCenter.X) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
+                        case Views.ZX: return (Int32)Math.Max(0, Math.Min(((Pt.Y - CubeCenter.Y) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
+                        default: return 0;
+                    }
+                };
+
+                Grph.DrawString("X", new Font("微软雅黑", 9F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Color.FromArgb(GetAlphaOfPoint(P3D_100, 64, 192), Colors.X)), P_100);
+                Grph.DrawString("Y", new Font("微软雅黑", 9F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Color.FromArgb(GetAlphaOfPoint(P3D_010, 64, 192), Colors.Y)), P_010);
+                Grph.DrawString("Z", new Font("微软雅黑", 9F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Color.FromArgb(GetAlphaOfPoint(P3D_001, 64, 192), Colors.Z)), P_001);
+
+                //
+
+                string ViewName = string.Empty;
+
+                switch (View)
+                {
+                    case Views.XY: ViewName = "XY 视图 (主视图)"; break;
+                    case Views.YZ: ViewName = "YZ 视图"; break;
+                    case Views.ZX: ViewName = "ZX 视图"; break;
+                }
+
+                Grph.DrawString(ViewName, new Font("微软雅黑", 10F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Colors.Text), new PointF(Math.Max(0, (ProjBmp.Width - ProjBmp.Height) / 2), Math.Max(0, (ProjBmp.Height - ProjBmp.Width) / 2)));
+
+                //
+
+                Grph.DrawRectangle(new Pen(Color.FromArgb(64, Colors.Border), 1F), new Rectangle(new Point(0, 0), ProjBmp.Size));
+            }
 
             return ProjBmp;
         }
