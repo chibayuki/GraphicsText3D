@@ -166,13 +166,16 @@ namespace WinFormApp
 
             //
 
-            Label_Size.ForeColor = Label_Rotation.ForeColor = Me.RecommendColors.Text.ToColor();
+            Label_Size.ForeColor = Label_Rotation.ForeColor = Label_Illumination.ForeColor = Me.RecommendColors.Text.ToColor();
 
             Label_Sx.ForeColor = Label_Sy.ForeColor = Label_Sz.ForeColor = Me.RecommendColors.Text.ToColor();
             Label_Sx.BackColor = Label_Sy.BackColor = Label_Sz.BackColor = Me.RecommendColors.Button.ToColor();
 
             Label_Rx.ForeColor = Label_Ry.ForeColor = Label_Rz.ForeColor = Me.RecommendColors.Text.ToColor();
             Label_Rx.BackColor = Label_Ry.BackColor = Label_Rz.BackColor = Me.RecommendColors.Button.ToColor();
+
+            Label_IlluminationZ.ForeColor = Label_IlluminationXY.ForeColor = Label_Exposure.ForeColor = Me.RecommendColors.Text.ToColor();
+            Label_IlluminationZ.BackColor = Label_IlluminationXY.BackColor = Label_Exposure.BackColor = Me.RecommendColors.Button.ToColor();
         }
 
         #endregion
@@ -197,7 +200,7 @@ namespace WinFormApp
             ZX
         }
 
-        private Bitmap GetProjectionOfCube(Com.PointD3D CubeSize, double[,] AffineMatrix, Views View, SizeF ImageSize)
+        private Bitmap GetProjectionOfCube(Com.PointD3D CubeSize, double[,] AffineMatrix, Com.PointD3D IlluminationDirection, double Exposure, Views View, SizeF ImageSize)
         {
             //
             // 获取立方体的投影。
@@ -208,6 +211,8 @@ namespace WinFormApp
             CubeSize = CubeSize.VectorNormalize * CubeDiag;
 
             Bitmap ProjBmp = new Bitmap(Math.Max(1, (Int32)ImageSize.Width), Math.Max(1, (Int32)ImageSize.Height));
+
+            Color CubeColor = Me.RecommendColors.Main_DEC.AtAlpha(192).ToColor();
 
             //
 
@@ -356,24 +361,20 @@ namespace WinFormApp
 
             //
 
-            Color color = Me.RecommendColors.Main_DEC.AtAlpha(192).ToColor();
-            Com.PointD3D illuminationDirection = new Com.PointD3D(-0.5, 1, 0.5);
-            double exposure = 0;
-
             List<double> IlluminationIntensity = new List<double>(Element3D.Count);
 
-            double Exposure = Math.Max(-2, Math.Min(exposure / 50, 2));
+            double Exp = Math.Max(-2, Math.Min(Exposure / 50, 2));
 
-            if (illuminationDirection.IsEmpty)
+            if (IlluminationDirection.IsEmpty)
             {
                 for (int i = 0; i < 6; i++)
                 {
-                    IlluminationIntensity.Add(Exposure);
+                    IlluminationIntensity.Add(Exp);
                 }
 
                 for (int i = 6; i < Element3D.Count; i++)
                 {
-                    IlluminationIntensity.Add((Math.Sqrt(2) / 2) * (Exposure + 1) + (Exposure - 1));
+                    IlluminationIntensity.Add((Math.Sqrt(2) / 2) * (Exp + 1) + (Exp - 1));
                 }
             }
             else
@@ -404,7 +405,7 @@ namespace WinFormApp
 
                 for (int i = 0; i < NormalVector.Count; i++)
                 {
-                    Angle.Add(illuminationDirection.AngleFrom(NormalVector[i]));
+                    Angle.Add(IlluminationDirection.AngleFrom(NormalVector[i]));
                 }
 
                 for (int i = 0; i < Angle.Count; i++)
@@ -415,9 +416,9 @@ namespace WinFormApp
 
                     double _IlluminationIntensity = (A < Math.PI / 2 ? -CosSqrA : (A > Math.PI / 2 ? CosSqrA : 0));
 
-                    if (color.A < 255 && A != Math.PI / 2)
+                    if (CubeColor.A < 255 && A != Math.PI / 2)
                     {
-                        double Transmittance = 1 - (double)color.A / 255;
+                        double Transmittance = 1 - (double)CubeColor.A / 255;
 
                         if (A < Math.PI / 2)
                         {
@@ -429,7 +430,7 @@ namespace WinFormApp
                         }
                     }
 
-                    _IlluminationIntensity += Exposure;
+                    _IlluminationIntensity += Exp;
 
                     IlluminationIntensity.Add(_IlluminationIntensity);
                 }
@@ -462,7 +463,7 @@ namespace WinFormApp
                         }
                     }
 
-                    _IlluminationIntensity = (Math.Sqrt(2) / 2) * (_IlluminationIntensity / Num + 1) + (Exposure - 1);
+                    _IlluminationIntensity = (Math.Sqrt(2) / 2) * (_IlluminationIntensity / Num + 1) + (Exp - 1);
 
                     IlluminationIntensity.Add(_IlluminationIntensity);
                 }
@@ -488,7 +489,7 @@ namespace WinFormApp
                     case 6: ECr = Colors.X; break;
                     case 10: ECr = Colors.Y; break;
                     case 14: ECr = Colors.Z; break;
-                    default: ECr = color; break;
+                    default: ECr = CubeColor; break;
                 }
 
                 if (_IlluminationIntensity == 0)
@@ -714,6 +715,10 @@ namespace WinFormApp
             { 0, 0, 0, 1 }
         };
 
+        private Com.PointD3D IlluminationDirection = new Com.PointD3D(1, 0, 0); // 光照方向（球坐标系）。
+
+        private double Exposure = 0; // 曝光。
+
         private static class Colors // 颜色。
         {
             public static readonly Color Background = Color.Black;
@@ -756,13 +761,13 @@ namespace WinFormApp
                 Bitmap[,] BmpArray = new Bitmap[NumX, NumY]
                 {
                     {
-                        GetProjectionOfCube(CubeSize, AffineMatrix3D, Views.XY, BlockSize)
+                        GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection, Exposure, Views.XY, BlockSize)
                     },
                     {
-                        GetProjectionOfCube(CubeSize, AffineMatrix3D, Views.YZ, BlockSize)
+                        GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection, Exposure, Views.YZ, BlockSize)
                     },
                     {
-                        GetProjectionOfCube(CubeSize, AffineMatrix3D, Views.ZX, BlockSize)
+                        GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection, Exposure, Views.ZX, BlockSize)
                     }
                 };
 
@@ -843,9 +848,10 @@ namespace WinFormApp
             //
 
             Pen P = new Pen(Me.RecommendColors.Border_DEC.ToColor(), 1);
-            Control Ctrl1 = Label_Size, Ctrl2 = Label_Rotation, Cntr = sender as Control;
+            Control Ctrl1 = Label_Size, Ctrl2 = Label_Rotation, Ctrl3 = Label_Illumination, Cntr = sender as Control;
             e.Graphics.DrawLine(P, new Point(Ctrl1.Right, Ctrl1.Top + Ctrl1.Height / 2), new Point(Cntr.Width - Ctrl1.Left, Ctrl1.Top + Ctrl1.Height / 2));
             e.Graphics.DrawLine(P, new Point(Ctrl2.Right, Ctrl2.Top + Ctrl2.Height / 2), new Point(Cntr.Width - Ctrl2.Left, Ctrl2.Top + Ctrl2.Height / 2));
+            e.Graphics.DrawLine(P, new Point(Ctrl3.Right, Ctrl3.Top + Ctrl3.Height / 2), new Point(Cntr.Width - Ctrl3.Left, Ctrl3.Top + Ctrl3.Height / 2));
             P.Dispose();
         }
 
@@ -941,14 +947,17 @@ namespace WinFormApp
             // 鼠标释放 Label_Sxyz。
             //
 
-            ResizeNow = false;
+            if (e.Button == MouseButtons.Left)
+            {
+                ResizeNow = false;
 
-            ((Label)sender).BackColor = Me.RecommendColors.Button_DEC.ToColor();
-            ((Label)sender).Cursor = Cursors.Default;
+                ((Label)sender).BackColor = (Com.Geometry.CursorIsInControl((Label)sender) ? Me.RecommendColors.Button_DEC.ToColor() : Me.RecommendColors.Button.ToColor());
+                ((Label)sender).Cursor = Cursors.Default;
 
-            Label_Sx.Text = "X";
-            Label_Sy.Text = "Y";
-            Label_Sz.Text = "Z";
+                Label_Sx.Text = "X";
+                Label_Sy.Text = "Y";
+                Label_Sz.Text = "Z";
+            }
         }
 
         private void Label_Sx_MouseMove(object sender, MouseEventArgs e)
@@ -1050,14 +1059,17 @@ namespace WinFormApp
             // 鼠标释放 Label_Rxyz。
             //
 
-            RotateNow = false;
+            if (e.Button == MouseButtons.Left)
+            {
+                RotateNow = false;
 
-            ((Label)sender).BackColor = Me.RecommendColors.Button_DEC.ToColor();
-            ((Label)sender).Cursor = Cursors.Default;
+                ((Label)sender).BackColor = (Com.Geometry.CursorIsInControl((Label)sender) ? Me.RecommendColors.Button_DEC.ToColor() : Me.RecommendColors.Button.ToColor());
+                ((Label)sender).Cursor = Cursors.Default;
 
-            Label_Rx.Text = "X";
-            Label_Ry.Text = "Y";
-            Label_Rz.Text = "Z";
+                Label_Rx.Text = "X";
+                Label_Ry.Text = "Y";
+                Label_Rz.Text = "Z";
+            }
         }
 
         private void Label_Rx_MouseMove(object sender, MouseEventArgs e)
@@ -1120,6 +1132,120 @@ namespace WinFormApp
                 {
                     RepaintBmp();
                 }
+            }
+        }
+
+        private const double ShiftPerPixel = 1; // 每像素的偏移量。
+        private Com.PointD3D IlluminationDirectionCopy = new Com.PointD3D(); // 光照方向（球坐标系）。
+        private double ExposureCopy = 0; // 曝光。
+        private bool AdjustIlluminationNow = false; // 是否正在调整光照。
+
+        private void Label_Illumination_MouseEnter(object sender, EventArgs e)
+        {
+            //
+            // 鼠标进入 Label_Illumination。
+            //
+
+            ((Label)sender).BackColor = Me.RecommendColors.Button_DEC.ToColor();
+        }
+
+        private void Label_Illumination_MouseLeave(object sender, EventArgs e)
+        {
+            //
+            // 鼠标离开 Label_Illumination。
+            //
+
+            ((Label)sender).BackColor = Me.RecommendColors.Button.ToColor();
+        }
+
+        private void Label_Illumination_MouseDown(object sender, MouseEventArgs e)
+        {
+            //
+            // 鼠标按下 Label_Illumination。
+            //
+
+            if (e.Button == MouseButtons.Left)
+            {
+                ((Label)sender).BackColor = Me.RecommendColors.Button_INC.ToColor();
+                ((Label)sender).Cursor = Cursors.SizeWE;
+
+                CursorX = e.X;
+                IlluminationDirectionCopy = IlluminationDirection;
+                ExposureCopy = Exposure;
+                AdjustIlluminationNow = true;
+            }
+        }
+
+        private void Label_Illumination_MouseUp(object sender, MouseEventArgs e)
+        {
+            //
+            // 鼠标释放 Label_Illumination。
+            //
+
+            if (e.Button == MouseButtons.Left)
+            {
+                AdjustIlluminationNow = false;
+
+                ((Label)sender).BackColor = (Com.Geometry.CursorIsInControl((Label)sender) ? Me.RecommendColors.Button_DEC.ToColor() : Me.RecommendColors.Button.ToColor());
+                ((Label)sender).Cursor = Cursors.Default;
+
+                Label_IlluminationZ.Text = "Z";
+                Label_IlluminationXY.Text = "XY";
+                Label_Exposure.Text = "Exp";
+            }
+        }
+
+        private void Label_IlluminationZ_MouseMove(object sender, MouseEventArgs e)
+        {
+            //
+            // 鼠标经过 Label_IlluminationZ。
+            //
+
+            if (AdjustIlluminationNow)
+            {
+                double angle = (e.X - CursorX) * RadPerPixel;
+
+                IlluminationDirection.Y = IlluminationDirectionCopy.Y + angle;
+
+                ((Label)sender).Text = (IlluminationDirection.Y / Math.PI * 180).ToString("F0") + "°";
+
+                RepaintBmp();
+            }
+        }
+
+        private void Label_IlluminationXY_MouseMove(object sender, MouseEventArgs e)
+        {
+            //
+            // 鼠标经过 Label_IlluminationXY。
+            //
+
+            if (AdjustIlluminationNow)
+            {
+                double angle = (e.X - CursorX) * RadPerPixel;
+
+                IlluminationDirection.Z = IlluminationDirectionCopy.Z + angle;
+
+                ((Label)sender).Text = (IlluminationDirection.Z / Math.PI * 180).ToString("F0") + "°";
+
+                RepaintBmp();
+            }
+        }
+
+        private void Label_Exposure_MouseMove(object sender, MouseEventArgs e)
+        {
+            //
+            // 鼠标经过 Label_Exposure。
+            //
+
+            if (AdjustIlluminationNow)
+            {
+                double shift = (e.X - CursorX) * ShiftPerPixel;
+
+                Exposure = Math.Max(-100, Math.Min(ExposureCopy + shift, 100));
+
+                ((Label)sender).Text = (Exposure >= 0 ? "+ " : "- ") + Math.Abs(Exposure);
+
+                RepaintBmp();
             }
         }
 

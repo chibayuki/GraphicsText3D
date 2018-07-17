@@ -42,6 +42,10 @@
             this.Label_Rx = new System.Windows.Forms.Label();
             this.Label_Ry = new System.Windows.Forms.Label();
             this.Label_Rz = new System.Windows.Forms.Label();
+            this.Label_Illumination = new System.Windows.Forms.Label();
+            this.Label_IlluminationZ = new System.Windows.Forms.Label();
+            this.Label_IlluminationXY = new System.Windows.Forms.Label();
+            this.Label_Exposure = new System.Windows.Forms.Label();
             this.Panel_GraphArea = new System.Windows.Forms.Panel();
             this.Panel_Main.SuspendLayout();
             this.Panel_Client.SuspendLayout();
@@ -75,7 +79,7 @@
             this.Panel_Control.Controls.Add(this.Panel_Control_SubFormClient);
             this.Panel_Control.Location = new System.Drawing.Point(0, 0);
             this.Panel_Control.Name = "Panel_Control";
-            this.Panel_Control.Size = new System.Drawing.Size(202, 117);
+            this.Panel_Control.Size = new System.Drawing.Size(202, 162);
             this.Panel_Control.TabIndex = 0;
             this.Panel_Control.Paint += new System.Windows.Forms.PaintEventHandler(this.Panel_Control_Paint);
             // 
@@ -103,9 +107,13 @@
             this.Panel_Control_SubFormClient.Controls.Add(this.Label_Rx);
             this.Panel_Control_SubFormClient.Controls.Add(this.Label_Ry);
             this.Panel_Control_SubFormClient.Controls.Add(this.Label_Rz);
+            this.Panel_Control_SubFormClient.Controls.Add(this.Label_Illumination);
+            this.Panel_Control_SubFormClient.Controls.Add(this.Label_IlluminationZ);
+            this.Panel_Control_SubFormClient.Controls.Add(this.Label_IlluminationXY);
+            this.Panel_Control_SubFormClient.Controls.Add(this.Label_Exposure);
             this.Panel_Control_SubFormClient.Location = new System.Drawing.Point(1, 21);
             this.Panel_Control_SubFormClient.Name = "Panel_Control_SubFormClient";
-            this.Panel_Control_SubFormClient.Size = new System.Drawing.Size(200, 95);
+            this.Panel_Control_SubFormClient.Size = new System.Drawing.Size(200, 140);
             this.Panel_Control_SubFormClient.TabIndex = 0;
             this.Panel_Control_SubFormClient.Paint += new System.Windows.Forms.PaintEventHandler(this.Panel_Control_SubFormClient_Paint);
             // 
@@ -227,6 +235,65 @@
             this.Label_Rz.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Label_Rz_MouseMove);
             this.Label_Rz.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Label_Rxyz_MouseUp);
             // 
+            // Label_Illumination
+            // 
+            this.Label_Illumination.AutoSize = true;
+            this.Label_Illumination.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Label_Illumination.ForeColor = System.Drawing.Color.White;
+            this.Label_Illumination.Location = new System.Drawing.Point(5, 95);
+            this.Label_Illumination.Name = "Label_Illumination";
+            this.Label_Illumination.Size = new System.Drawing.Size(32, 17);
+            this.Label_Illumination.TabIndex = 0;
+            this.Label_Illumination.Text = "光照";
+            // 
+            // Label_IlluminationZ
+            // 
+            this.Label_IlluminationZ.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Label_IlluminationZ.ForeColor = System.Drawing.Color.White;
+            this.Label_IlluminationZ.Location = new System.Drawing.Point(5, 115);
+            this.Label_IlluminationZ.Name = "Label_IlluminationZ";
+            this.Label_IlluminationZ.Size = new System.Drawing.Size(60, 20);
+            this.Label_IlluminationZ.TabIndex = 0;
+            this.Label_IlluminationZ.Text = "Z";
+            this.Label_IlluminationZ.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.Label_IlluminationZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Label_Illumination_MouseDown);
+            this.Label_IlluminationZ.MouseEnter += new System.EventHandler(this.Label_Illumination_MouseEnter);
+            this.Label_IlluminationZ.MouseLeave += new System.EventHandler(this.Label_Illumination_MouseLeave);
+            this.Label_IlluminationZ.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Label_IlluminationZ_MouseMove);
+            this.Label_IlluminationZ.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Label_Illumination_MouseUp);
+            // 
+            // Label_IlluminationXY
+            // 
+            this.Label_IlluminationXY.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Label_IlluminationXY.ForeColor = System.Drawing.Color.White;
+            this.Label_IlluminationXY.Location = new System.Drawing.Point(70, 115);
+            this.Label_IlluminationXY.Name = "Label_IlluminationXY";
+            this.Label_IlluminationXY.Size = new System.Drawing.Size(60, 20);
+            this.Label_IlluminationXY.TabIndex = 0;
+            this.Label_IlluminationXY.Text = "XY";
+            this.Label_IlluminationXY.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.Label_IlluminationXY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Label_Illumination_MouseDown);
+            this.Label_IlluminationXY.MouseEnter += new System.EventHandler(this.Label_Illumination_MouseEnter);
+            this.Label_IlluminationXY.MouseLeave += new System.EventHandler(this.Label_Illumination_MouseLeave);
+            this.Label_IlluminationXY.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Label_IlluminationXY_MouseMove);
+            this.Label_IlluminationXY.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Label_Illumination_MouseUp);
+            // 
+            // Label_Exposure
+            // 
+            this.Label_Exposure.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Label_Exposure.ForeColor = System.Drawing.Color.White;
+            this.Label_Exposure.Location = new System.Drawing.Point(135, 115);
+            this.Label_Exposure.Name = "Label_Exposure";
+            this.Label_Exposure.Size = new System.Drawing.Size(60, 20);
+            this.Label_Exposure.TabIndex = 0;
+            this.Label_Exposure.Text = "Exp";
+            this.Label_Exposure.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.Label_Exposure.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Label_Illumination_MouseDown);
+            this.Label_Exposure.MouseEnter += new System.EventHandler(this.Label_Illumination_MouseEnter);
+            this.Label_Exposure.MouseLeave += new System.EventHandler(this.Label_Illumination_MouseLeave);
+            this.Label_Exposure.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Label_Exposure_MouseMove);
+            this.Label_Exposure.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Label_Illumination_MouseUp);
+            // 
             // Panel_GraphArea
             // 
             this.Panel_GraphArea.BackColor = System.Drawing.Color.Transparent;
@@ -273,5 +340,9 @@
         private System.Windows.Forms.Label Label_Rotation;
         private System.Windows.Forms.Label Label_Size;
         private System.Windows.Forms.Panel Panel_Control_SubFormClient;
+        private System.Windows.Forms.Label Label_Illumination;
+        private System.Windows.Forms.Label Label_IlluminationZ;
+        private System.Windows.Forms.Label Label_IlluminationXY;
+        private System.Windows.Forms.Label Label_Exposure;
     }
 }
