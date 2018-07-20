@@ -195,9 +195,13 @@ namespace WinFormApp
 
         private enum Views // 视角枚举。
         {
+            NULL = -1,
+
             XY,
             YZ,
-            ZX
+            ZX,
+
+            COUNT
         }
 
         private Bitmap GetProjectionOfCube(Com.PointD3D CubeSize, double[,] AffineMatrix, Com.PointD3D IlluminationDirection, double Exposure, Views View, SizeF ImageSize)
@@ -210,7 +214,7 @@ namespace WinFormApp
 
             CubeSize = CubeSize.VectorNormalize * CubeDiag;
 
-            Bitmap ProjBmp = new Bitmap(Math.Max(1, (Int32)ImageSize.Width), Math.Max(1, (Int32)ImageSize.Height));
+            Bitmap PrjBmp = new Bitmap(Math.Max(1, (Int32)ImageSize.Width), Math.Max(1, (Int32)ImageSize.Height));
 
             Color CubeColor = Me.RecommendColors.Main_DEC.AtAlpha(192).ToColor();
 
@@ -280,7 +284,7 @@ namespace WinFormApp
             Com.PointD P2D_011 = GetProject3D(P3D_011, PrjCenter3D, TrueLenDist3D);
             Com.PointD P2D_111 = GetProject3D(P3D_111, PrjCenter3D, TrueLenDist3D);
 
-            Com.PointD BitmapCenter = new Com.PointD(ProjBmp.Size) / 2;
+            Com.PointD BitmapCenter = new Com.PointD(PrjBmp.Size) / 2;
 
             PointF P_000 = (P2D_000 + BitmapCenter).ToPointF();
             PointF P_100 = (P2D_100 + BitmapCenter).ToPointF();
@@ -560,7 +564,7 @@ namespace WinFormApp
 
             //
 
-            using (Graphics Grph = Graphics.FromImage(ProjBmp))
+            using (Graphics Grph = Graphics.FromImage(PrjBmp))
             {
                 Grph.SmoothingMode = SmoothingMode.AntiAlias;
 
@@ -695,14 +699,14 @@ namespace WinFormApp
                     case Views.ZX: ViewName = "ZX 视图"; break;
                 }
 
-                Grph.DrawString(ViewName, new Font("微软雅黑", 10F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Colors.Text), new PointF(Math.Max(0, (ProjBmp.Width - ProjBmp.Height) / 2), Math.Max(0, (ProjBmp.Height - ProjBmp.Width) / 2)));
+                Grph.DrawString(ViewName, new Font("微软雅黑", 10F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Colors.Text), new PointF(Math.Max(0, (PrjBmp.Width - PrjBmp.Height) / 2), Math.Max(0, (PrjBmp.Height - PrjBmp.Width) / 2)));
 
                 //
 
-                Grph.DrawRectangle(new Pen(Color.FromArgb(64, Colors.Border), 1F), new Rectangle(new Point(0, 0), ProjBmp.Size));
+                Grph.DrawRectangle(new Pen(Color.FromArgb(64, Colors.Border), 1F), new Rectangle(new Point(-1, -1), PrjBmp.Size));
             }
 
-            return ProjBmp;
+            return PrjBmp;
         }
 
         private Com.PointD3D CubeSize = new Com.PointD3D(1, 1, 1); // 立方体各边长的比例。
@@ -748,44 +752,55 @@ namespace WinFormApp
 
             Bmp = new Bitmap(Math.Max(1, Panel_GraphArea.Width), Math.Max(1, Panel_GraphArea.Height));
 
-            using (Graphics CreateBmp = Graphics.FromImage(Bmp))
+            using (Graphics Grph = Graphics.FromImage(Bmp))
             {
-                CreateBmp.Clear(Colors.Background);
+                Grph.Clear(Colors.Background);
 
                 //
 
-                const Int32 NumX = 3, NumY = 1;
+                int N = (int)Views.COUNT;
+                double R = Math.Sqrt(N);
+                int W = Math.Max(1, (int)Math.Floor(R * Math.Sqrt((double)Panel_GraphArea.Width / Panel_GraphArea.Height)));
+                int H = Math.Max(1, (int)Math.Floor(R * Math.Sqrt((double)Panel_GraphArea.Height / Panel_GraphArea.Width)));
 
-                SizeF BlockSize = new SizeF((float)Panel_GraphArea.Width / NumX, (float)Panel_GraphArea.Height / NumY);
-
-                Bitmap[,] BmpArray = new Bitmap[NumX, NumY]
+                while (W * H < N)
                 {
+                    if ((W + 1) * H >= N || W * (H + 1) >= N)
                     {
-                        GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.XY, BlockSize)
-                    },
-                    {
-                        GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.YZ, BlockSize)
-                    },
-                    {
-                        GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.ZX, BlockSize)
+                        if (Math.Abs((double)Panel_GraphArea.Width / (W + 1) - (double)Panel_GraphArea.Height / H) <= Math.Abs((double)Panel_GraphArea.Width / W - (double)Panel_GraphArea.Height / (H + 1)))
+                        {
+                            W++;
+                        }
+                        else
+                        {
+                            H++;
+                        }
                     }
-                };
-
-                for (int x = 0; x < NumX; x++)
-                {
-                    for (int y = 0; y < NumY; y++)
+                    else
                     {
-                        CreateBmp.DrawImage(BmpArray[x, y], new Point((Int32)(BlockSize.Width * x), (Int32)(BlockSize.Height * y)));
+                        W++;
+                        H++;
                     }
                 }
 
-                //
+                SizeF BlockSize = new SizeF((float)Panel_GraphArea.Width / W, (float)Panel_GraphArea.Height / H);
 
-                foreach (Bitmap Bmp in BmpArray)
+                Bitmap[] PrjBmpArray = new Bitmap[(int)Views.COUNT]
                 {
-                    if (Bmp != null)
+                    GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.XY, BlockSize),
+                    GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.YZ, BlockSize),
+                    GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.ZX, BlockSize)
+                };
+
+                for (int i = 0; i < PrjBmpArray.Length; i++)
+                {
+                    Bitmap PrjBmp = PrjBmpArray[i];
+
+                    if (PrjBmp != null)
                     {
-                        Bmp.Dispose();
+                        Grph.DrawImage(PrjBmp, new Point((Int32)(BlockSize.Width * (i % W)), (Int32)(BlockSize.Height * (i / W))));
+
+                        PrjBmp.Dispose();
                     }
                 }
             }
@@ -1106,7 +1121,18 @@ namespace WinFormApp
             {
                 double angle = (e.X - CursorX) * RadPerPixel;
 
-                IlluminationDirection.Y = Math.Max(0, Math.Min(IlluminationDirectionCopy.Y + angle, Math.PI));
+                double Z = Com.Geometry.AngleMapping(IlluminationDirectionCopy.Y + angle);
+
+                if (Z <= Math.PI)
+                {
+                    IlluminationDirection.Y = Z;
+                    IlluminationDirection.Z = IlluminationDirectionCopy.Z;
+                }
+                else
+                {
+                    IlluminationDirection.Y = 2 * Math.PI - Z;
+                    IlluminationDirection.Z = Com.Geometry.AngleMapping(IlluminationDirectionCopy.Z + Math.PI);
+                }
 
                 ((Label)sender).Text = (IlluminationDirection.Y / Math.PI * 180).ToString("F0") + "°";
 
