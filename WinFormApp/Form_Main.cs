@@ -25,20 +25,6 @@ namespace WinFormApp
 {
     public partial class Form_Main : Form
     {
-        #region 版本信息
-
-        private static readonly string ApplicationName = Application.ProductName; // 程序名。
-        private static readonly string ApplicationEdition = "18"; // 程序版本。
-
-        private static readonly Int32 MajorVersion = new Version(Application.ProductVersion).Major; // 主版本。
-        private static readonly Int32 MinorVersion = new Version(Application.ProductVersion).Minor; // 副版本。
-        private static readonly Int32 BuildNumber = new Version(Application.ProductVersion).Build; // 版本号。
-        private static readonly Int32 BuildRevision = new Version(Application.ProductVersion).Revision; // 修订版本。
-        private static readonly string LabString = "3D"; // 分支名。
-        private static readonly string BuildTime = "180710-0000"; // 编译时间。
-
-        #endregion
-
         #region 窗体构造
 
         private Com.WinForm.FormManager Me;
@@ -100,10 +86,6 @@ namespace WinFormApp
 
         private void FormDefine()
         {
-            Me.Caption = ApplicationName;
-            Me.FormStyle = Com.WinForm.FormStyle.Sizable;
-            Me.EnableFullScreen = true;
-            Me.ClientSize = new Size(800, 450);
             Me.Theme = Com.WinForm.Theme.Colorful;
             Me.ThemeColor = Com.ColorManipulation.GetRandomColorX();
             Me.FormState = Com.WinForm.FormState.Maximized;
@@ -193,7 +175,7 @@ namespace WinFormApp
             Pt += Origin;
         }
 
-        private enum Views // 视角枚举。
+        private enum Views // 视图枚举。
         {
             NULL = -1,
 
@@ -699,7 +681,7 @@ namespace WinFormApp
                     case Views.ZX: ViewName = "ZX 视图"; break;
                 }
 
-                Grph.DrawString(ViewName, new Font("微软雅黑", 10F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Colors.Text), new PointF(Math.Max(0, (PrjBmp.Width - PrjBmp.Height) / 2), Math.Max(0, (PrjBmp.Height - PrjBmp.Width) / 2)));
+                Grph.DrawString(ViewName, new Font("微软雅黑", 10F, FontStyle.Regular, GraphicsUnit.Point, 134), new SolidBrush(Colors.Text), new PointF(Math.Max(0, (PrjBmp.Width - PrjBmp.Height) / 4), Math.Max(0, (PrjBmp.Height - PrjBmp.Width) / 4)));
 
                 //
 
@@ -763,23 +745,61 @@ namespace WinFormApp
                 int W = Math.Max(1, (int)Math.Floor(R * Math.Sqrt((double)Panel_GraphArea.Width / Panel_GraphArea.Height)));
                 int H = Math.Max(1, (int)Math.Floor(R * Math.Sqrt((double)Panel_GraphArea.Height / Panel_GraphArea.Width)));
 
-                while (W * H < N)
+                while (W * H < N || W * H >= N + Math.Min(W, H))
                 {
-                    if ((W + 1) * H >= N || W * (H + 1) >= N)
+                    if (W * H < N)
                     {
-                        if (Math.Abs((double)Panel_GraphArea.Width / (W + 1) - (double)Panel_GraphArea.Height / H) <= Math.Abs((double)Panel_GraphArea.Width / W - (double)Panel_GraphArea.Height / (H + 1)))
+                        if ((W + 1) * H >= N && W * (H + 1) >= N)
+                        {
+                            if (Math.Abs((double)Panel_GraphArea.Width / (W + 1) - (double)Panel_GraphArea.Height / H) <= Math.Abs((double)Panel_GraphArea.Width / W - (double)Panel_GraphArea.Height / (H + 1)))
+                            {
+                                W++;
+                            }
+                            else
+                            {
+                                H++;
+                            }
+                        }
+                        else if ((W + 1) * H >= N)
                         {
                             W++;
                         }
+                        else if (W * (H + 1) >= N)
+                        {
+                            H++;
+                        }
                         else
                         {
+                            W++;
                             H++;
                         }
                     }
                     else
                     {
-                        W++;
-                        H++;
+                        if ((W - 1) * H >= N && W * (H - 1) >= N)
+                        {
+                            if (Math.Abs((double)Panel_GraphArea.Width / (W - 1) - (double)Panel_GraphArea.Height / H) <= Math.Abs((double)Panel_GraphArea.Width / W - (double)Panel_GraphArea.Height / (H - 1)))
+                            {
+                                W--;
+                            }
+                            else
+                            {
+                                H--;
+                            }
+                        }
+                        else if ((W - 1) * H >= N)
+                        {
+                            W--;
+                        }
+                        else if (W * (H - 1) >= N)
+                        {
+                            H--;
+                        }
+                        else if ((W - 1) * (H - 1) >= N)
+                        {
+                            W--;
+                            H--;
+                        }
                     }
                 }
 
@@ -823,6 +843,27 @@ namespace WinFormApp
             }
         }
 
+        private void BackgroundWorker_RepaintBmpDelay_DoWork(object sender, DoWorkEventArgs e)
+        {
+            //
+            // 后台更新位图。
+            //
+
+            UpdateBmp();
+        }
+
+        private void BackgroundWorker_RepaintBmpDelay_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            //
+            // 后台更新位图完成，重绘位图。
+            //
+
+            if (Bmp != null)
+            {
+                Panel_GraphArea.CreateGraphics().DrawImage(Bmp, new Point(0, 0));
+            }
+        }
+
         private void Panel_GraphArea_Paint(object sender, PaintEventArgs e)
         {
             //
@@ -844,18 +885,6 @@ namespace WinFormApp
 
         #region "控制"子窗口
 
-        private void Panel_Control_Paint(object sender, PaintEventArgs e)
-        {
-            //
-            // Panel_Control 绘图。
-            //
-
-            Pen P = new Pen(Me.RecommendColors.Main.ToColor(), 1);
-            Control Cntr = sender as Control;
-            e.Graphics.DrawRectangle(P, new Rectangle(new Point(0, 0), new Size(Cntr.Width - 1, Cntr.Height - 1)));
-            P.Dispose();
-        }
-
         private void Panel_Control_SubFormClient_Paint(object sender, PaintEventArgs e)
         {
             //
@@ -870,7 +899,6 @@ namespace WinFormApp
             P.Dispose();
         }
 
-        private Point SubFormLoc = new Point(); // 子窗口位置。
         private Point CursorLoc = new Point(); // 鼠标指针位置。
         private bool SubFormIsMoving = false; // 是否正在移动子窗口。
 
@@ -882,7 +910,6 @@ namespace WinFormApp
 
             if (e.Button == MouseButtons.Left)
             {
-                SubFormLoc = Panel_Control.Location;
                 CursorLoc = e.Location;
                 SubFormIsMoving = true;
             }
@@ -1000,7 +1027,7 @@ namespace WinFormApp
             // 鼠标经过 Label_Sx。
             //
 
-            if (AdjustNow)
+            if (AdjustNow && !BackgroundWorker_RepaintBmpDelay.IsBusy)
             {
                 double ratio = Math.Max(0.01, 1 + (e.X - CursorX) * RatioPerPixel);
 
@@ -1008,7 +1035,7 @@ namespace WinFormApp
 
                 CubeSize = Com.PointD3D.Max(new Com.PointD3D(0.001, 0.001, 0.001), new Com.PointD3D(CubeSizeCopy.X * ratio, CubeSizeCopy.Y, CubeSizeCopy.Z).VectorNormalize);
 
-                RepaintBmp();
+                BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
             }
         }
 
@@ -1018,7 +1045,7 @@ namespace WinFormApp
             // 鼠标经过 Label_Sy。
             //
 
-            if (AdjustNow)
+            if (AdjustNow && !BackgroundWorker_RepaintBmpDelay.IsBusy)
             {
                 double ratio = Math.Max(0.01, 1 + (e.X - CursorX) * RatioPerPixel);
 
@@ -1026,7 +1053,7 @@ namespace WinFormApp
 
                 CubeSize = Com.PointD3D.Max(new Com.PointD3D(0.001, 0.001, 0.001), new Com.PointD3D(CubeSizeCopy.X, CubeSizeCopy.Y * ratio, CubeSizeCopy.Z).VectorNormalize);
 
-                RepaintBmp();
+                BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
             }
         }
 
@@ -1036,7 +1063,7 @@ namespace WinFormApp
             // 鼠标经过 Label_Sz。
             //
 
-            if (AdjustNow)
+            if (AdjustNow && !BackgroundWorker_RepaintBmpDelay.IsBusy)
             {
                 double ratio = Math.Max(0.01, 1 + (e.X - CursorX) * RatioPerPixel);
 
@@ -1044,7 +1071,7 @@ namespace WinFormApp
 
                 CubeSize = Com.PointD3D.Max(new Com.PointD3D(0.001, 0.001, 0.001), new Com.PointD3D(CubeSizeCopy.X, CubeSizeCopy.Y, CubeSizeCopy.Z * ratio).VectorNormalize);
 
-                RepaintBmp();
+                BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
             }
         }
 
@@ -1054,7 +1081,7 @@ namespace WinFormApp
             // 鼠标经过 Label_Rx。
             //
 
-            if (AdjustNow)
+            if (AdjustNow && !BackgroundWorker_RepaintBmpDelay.IsBusy)
             {
                 double angle = (e.X - CursorX) * RadPerPixel;
 
@@ -1064,7 +1091,7 @@ namespace WinFormApp
 
                 if (Com.Matrix2D.Multiply(matrixLeft, AffineMatrix3DCopy, out AffineMatrix3D))
                 {
-                    RepaintBmp();
+                    BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
                 }
             }
         }
@@ -1075,7 +1102,7 @@ namespace WinFormApp
             // 鼠标经过 Label_Ry。
             //
 
-            if (AdjustNow)
+            if (AdjustNow && !BackgroundWorker_RepaintBmpDelay.IsBusy)
             {
                 double angle = (e.X - CursorX) * RadPerPixel;
 
@@ -1085,7 +1112,7 @@ namespace WinFormApp
 
                 if (Com.Matrix2D.Multiply(matrixLeft, AffineMatrix3DCopy, out AffineMatrix3D))
                 {
-                    RepaintBmp();
+                    BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
                 }
             }
         }
@@ -1096,7 +1123,7 @@ namespace WinFormApp
             // 鼠标经过 Label_Rz。
             //
 
-            if (AdjustNow)
+            if (AdjustNow && !BackgroundWorker_RepaintBmpDelay.IsBusy)
             {
                 double angle = (e.X - CursorX) * RadPerPixel;
 
@@ -1106,7 +1133,7 @@ namespace WinFormApp
 
                 if (Com.Matrix2D.Multiply(matrixLeft, AffineMatrix3DCopy, out AffineMatrix3D))
                 {
-                    RepaintBmp();
+                    BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
                 }
             }
         }
@@ -1117,7 +1144,7 @@ namespace WinFormApp
             // 鼠标经过 Label_IlluminationZ。
             //
 
-            if (AdjustNow)
+            if (AdjustNow && !BackgroundWorker_RepaintBmpDelay.IsBusy)
             {
                 double angle = (e.X - CursorX) * RadPerPixel;
 
@@ -1136,7 +1163,7 @@ namespace WinFormApp
 
                 ((Label)sender).Text = (IlluminationDirection.Y / Math.PI * 180).ToString("F0") + "°";
 
-                RepaintBmp();
+                BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
             }
         }
 
@@ -1146,7 +1173,7 @@ namespace WinFormApp
             // 鼠标经过 Label_IlluminationXY。
             //
 
-            if (AdjustNow)
+            if (AdjustNow && !BackgroundWorker_RepaintBmpDelay.IsBusy)
             {
                 double angle = (e.X - CursorX) * RadPerPixel;
 
@@ -1154,7 +1181,7 @@ namespace WinFormApp
 
                 ((Label)sender).Text = (IlluminationDirection.Z / Math.PI * 180).ToString("F0") + "°";
 
-                RepaintBmp();
+                BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
             }
         }
 
@@ -1164,7 +1191,7 @@ namespace WinFormApp
             // 鼠标经过 Label_Exposure。
             //
 
-            if (AdjustNow)
+            if (AdjustNow && !BackgroundWorker_RepaintBmpDelay.IsBusy)
             {
                 double shift = (e.X - CursorX) * ShiftPerPixel;
 
@@ -1172,7 +1199,7 @@ namespace WinFormApp
 
                 ((Label)sender).Text = (Exposure >= 0 ? "+ " : "- ") + Math.Abs(Exposure);
 
-                RepaintBmp();
+                BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
             }
         }
 
