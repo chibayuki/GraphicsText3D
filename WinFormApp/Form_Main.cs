@@ -186,7 +186,7 @@ namespace WinFormApp
             COUNT
         }
 
-        private Bitmap GetProjectionOfCube(Com.PointD3D CubeSize, double[,] AffineMatrix, Com.PointD3D IlluminationDirection, double Exposure, Views View, SizeF ImageSize)
+        private Bitmap GetProjectionOfCube(Com.PointD3D CubeSize, Color CubeColor, double[,] AffineMatrix, Com.PointD3D IlluminationDirection, double Exposure, Views View, SizeF ImageSize)
         {
             //
             // 获取立方体的投影。
@@ -196,9 +196,7 @@ namespace WinFormApp
 
             CubeSize = CubeSize.VectorNormalize * CubeDiag;
 
-            Bitmap PrjBmp = new Bitmap(Math.Max(1, (Int32)ImageSize.Width), Math.Max(1, (Int32)ImageSize.Height));
-
-            Color CubeColor = Me.RecommendColors.Main_DEC.AtAlpha(192).ToColor();
+            Bitmap PrjBmp = new Bitmap(Math.Max(1, (int)ImageSize.Width), Math.Max(1, (int)ImageSize.Height));
 
             //
 
@@ -366,19 +364,19 @@ namespace WinFormApp
             else
             {
                 List<Com.PointD3D> NormalVector = new List<Com.PointD3D>(6)
-                    {
-                        // XY 面
-                        new Com.PointD3D(0, 0, -1),
-                        new Com.PointD3D(0, 0, 1),
+                {
+                    // XY 面
+                    new Com.PointD3D(0, 0, -1),
+                    new Com.PointD3D(0, 0, 1),
 
-                        // YZ 面
-                        new Com.PointD3D(-1, 0, 0),
-                        new Com.PointD3D(1, 0, 0),
+                    // YZ 面
+                    new Com.PointD3D(-1, 0, 0),
+                    new Com.PointD3D(1, 0, 0),
 
-                        // ZX 面
-                        new Com.PointD3D(0, -1, 0),
-                        new Com.PointD3D(0, 1, 0),
-                    };
+                    // ZX 面
+                    new Com.PointD3D(0, -1, 0),
+                    new Com.PointD3D(0, 1, 0),
+                };
 
                 Com.PointD3D NewOrigin = new Com.PointD3D(0, 0, 0).AffineTransformCopy(AffineMatrix);
 
@@ -466,36 +464,45 @@ namespace WinFormApp
 
             for (int i = 0; i < IlluminationIntensity.Count; i++)
             {
-                double _IlluminationIntensity = IlluminationIntensity[i];
-
-                Color ECr;
-
                 switch (i)
                 {
-                    case 6: ECr = Colors.X; break;
-                    case 10: ECr = Colors.Y; break;
-                    case 14: ECr = Colors.Z; break;
-                    default: ECr = CubeColor; break;
-                }
+                    case 6:
+                        ElementColor.Add(Colors.X);
+                        break;
 
-                if (_IlluminationIntensity == 0)
-                {
-                    ElementColor.Add(ECr);
-                }
-                else
-                {
-                    Com.ColorX EColor = new Com.ColorX(ECr);
+                    case 10:
+                        ElementColor.Add(Colors.Y);
+                        break;
 
-                    if (_IlluminationIntensity < 0)
-                    {
-                        EColor.Lightness_HSL += EColor.Lightness_HSL * _IlluminationIntensity;
-                    }
-                    else
-                    {
-                        EColor.Lightness_HSL += (100 - EColor.Lightness_HSL) * _IlluminationIntensity;
-                    }
+                    case 14:
+                        ElementColor.Add(Colors.Z);
+                        break;
 
-                    ElementColor.Add(EColor.ToColor());
+                    default:
+                        {
+                            double _IlluminationIntensity = IlluminationIntensity[i];
+
+                            if (_IlluminationIntensity == 0)
+                            {
+                                ElementColor.Add(CubeColor);
+                            }
+                            else
+                            {
+                                Com.ColorX EColor = new Com.ColorX(CubeColor);
+
+                                if (_IlluminationIntensity < 0)
+                                {
+                                    EColor.Lightness_HSL += EColor.Lightness_HSL * _IlluminationIntensity;
+                                }
+                                else
+                                {
+                                    EColor.Lightness_HSL += (100 - EColor.Lightness_HSL) * _IlluminationIntensity;
+                                }
+
+                                ElementColor.Add(EColor.ToColor());
+                            }
+                        }
+                        break;
                 }
             }
 
@@ -624,9 +631,26 @@ namespace WinFormApp
 
                                     switch (View)
                                     {
-                                        case Views.XY: Alpha0 = GetAlpha(EColor, Element3D[EIndex][0].Z); Alpha1 = GetAlpha(EColor, Element3D[EIndex][1].Z); break;
-                                        case Views.YZ: Alpha0 = GetAlpha(EColor, Element3D[EIndex][0].X); Alpha1 = GetAlpha(EColor, Element3D[EIndex][1].X); break;
-                                        case Views.ZX: Alpha0 = GetAlpha(EColor, Element3D[EIndex][0].Y); Alpha1 = GetAlpha(EColor, Element3D[EIndex][1].Y); break;
+                                        case Views.XY:
+                                            {
+                                                Alpha0 = GetAlpha(EColor, Element3D[EIndex][0].Z);
+                                                Alpha1 = GetAlpha(EColor, Element3D[EIndex][1].Z);
+                                            }
+                                            break;
+
+                                        case Views.YZ:
+                                            {
+                                                Alpha0 = GetAlpha(EColor, Element3D[EIndex][0].X);
+                                                Alpha1 = GetAlpha(EColor, Element3D[EIndex][1].X);
+                                            }
+                                            break;
+
+                                        case Views.ZX:
+                                            {
+                                                Alpha0 = GetAlpha(EColor, Element3D[EIndex][0].Y);
+                                                Alpha1 = GetAlpha(EColor, Element3D[EIndex][1].Y);
+                                            }
+                                            break;
                                     }
 
                                     Br = new LinearGradientBrush(Element[0], Element[1], Color.FromArgb(Alpha0, EColor), Color.FromArgb(Alpha1, EColor));
@@ -655,13 +679,13 @@ namespace WinFormApp
 
                 //
 
-                Func<Com.PointD3D, Int32, Int32, Int32> GetAlphaOfPoint = (Pt, MinAlpha, MaxAlpha) =>
+                Func<Com.PointD3D, int, int, int> GetAlphaOfPoint = (Pt, MinAlpha, MaxAlpha) =>
                 {
                     switch (View)
                     {
-                        case Views.XY: return (Int32)Math.Max(0, Math.Min(((Pt.Z - CubeCenter.Z) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
-                        case Views.YZ: return (Int32)Math.Max(0, Math.Min(((Pt.X - CubeCenter.X) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
-                        case Views.ZX: return (Int32)Math.Max(0, Math.Min(((Pt.Y - CubeCenter.Y) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
+                        case Views.XY: return (int)Math.Max(0, Math.Min(((Pt.Z - CubeCenter.Z) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
+                        case Views.YZ: return (int)Math.Max(0, Math.Min(((Pt.X - CubeCenter.X) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
+                        case Views.ZX: return (int)Math.Max(0, Math.Min(((Pt.Y - CubeCenter.Y) / CubeDiag + 0.5) * (MinAlpha - MaxAlpha) + MaxAlpha, 255));
                         default: return 0;
                     }
                 };
@@ -714,9 +738,6 @@ namespace WinFormApp
             public static readonly Color X = Color.DeepPink;
             public static readonly Color Y = Color.Lime;
             public static readonly Color Z = Color.DeepSkyBlue;
-
-            public static readonly Color Side = Color.White;
-            public static readonly Color Line = Color.White;
         }
 
         private Bitmap Bmp; // 位图。
@@ -807,9 +828,9 @@ namespace WinFormApp
 
                 Bitmap[] PrjBmpArray = new Bitmap[(int)Views.COUNT]
                 {
-                    GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.XY, BlockSize),
-                    GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.YZ, BlockSize),
-                    GetProjectionOfCube(CubeSize, AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.ZX, BlockSize)
+                    GetProjectionOfCube(CubeSize, Me.RecommendColors.Main_DEC.AtAlpha(192).ToColor(), AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.XY, BlockSize),
+                    GetProjectionOfCube(CubeSize, Me.RecommendColors.Main_DEC.AtAlpha(192).ToColor(), AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.YZ, BlockSize),
+                    GetProjectionOfCube(CubeSize, Me.RecommendColors.Main_DEC.AtAlpha(192).ToColor(), AffineMatrix3D, IlluminationDirection.ToCartesian(), Exposure, Views.ZX, BlockSize)
                 };
 
                 for (int i = 0; i < PrjBmpArray.Length; i++)
@@ -818,7 +839,7 @@ namespace WinFormApp
 
                     if (PrjBmp != null)
                     {
-                        Grph.DrawImage(PrjBmp, new Point((Int32)(BlockSize.Width * (i % W)), (Int32)(BlockSize.Height * (i / W))));
+                        Grph.DrawImage(PrjBmp, new Point((int)(BlockSize.Width * (i % W)), (int)(BlockSize.Height * (i / W))));
 
                         PrjBmp.Dispose();
                     }
@@ -949,7 +970,7 @@ namespace WinFormApp
         private const double RadPerPixel = Math.PI / 180; // 每像素的旋转弧度。
         private const double ShiftPerPixel = 1; // 每像素的偏移量。
 
-        private Int32 CursorX = 0; // 鼠标指针 X 坐标。
+        private int CursorX = 0; // 鼠标指针 X 坐标。
         private bool AdjustNow = false; // 是否正在调整。
 
         private Com.PointD3D CubeSizeCopy = new Com.PointD3D(); // 立方体各边长的比例。
