@@ -195,7 +195,7 @@
             this.Label_Rx.Name = "Label_Rx";
             this.Label_Rx.Size = new System.Drawing.Size(60, 20);
             this.Label_Rx.TabIndex = 0;
-            this.Label_Rx.Text = "X";
+            this.Label_Rx.Text = "X (Y-Z)";
             this.Label_Rx.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Label_Rx.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Label_Control_MouseDown);
             this.Label_Rx.MouseEnter += new System.EventHandler(this.Label_Control_MouseEnter);
@@ -211,7 +211,7 @@
             this.Label_Ry.Name = "Label_Ry";
             this.Label_Ry.Size = new System.Drawing.Size(60, 20);
             this.Label_Ry.TabIndex = 0;
-            this.Label_Ry.Text = "Y";
+            this.Label_Ry.Text = "Y (Z-X)";
             this.Label_Ry.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Label_Ry.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Label_Control_MouseDown);
             this.Label_Ry.MouseEnter += new System.EventHandler(this.Label_Control_MouseEnter);
@@ -227,7 +227,7 @@
             this.Label_Rz.Name = "Label_Rz";
             this.Label_Rz.Size = new System.Drawing.Size(60, 20);
             this.Label_Rz.TabIndex = 0;
-            this.Label_Rz.Text = "Z";
+            this.Label_Rz.Text = "Z (X-Y)";
             this.Label_Rz.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Label_Rz.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Label_Control_MouseDown);
             this.Label_Rz.MouseEnter += new System.EventHandler(this.Label_Control_MouseEnter);
@@ -254,7 +254,7 @@
             this.Label_IlluminationZ.Name = "Label_IlluminationZ";
             this.Label_IlluminationZ.Size = new System.Drawing.Size(60, 20);
             this.Label_IlluminationZ.TabIndex = 0;
-            this.Label_IlluminationZ.Text = "Z";
+            this.Label_IlluminationZ.Text = "Z-XY";
             this.Label_IlluminationZ.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Label_IlluminationZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Label_Control_MouseDown);
             this.Label_IlluminationZ.MouseEnter += new System.EventHandler(this.Label_Control_MouseEnter);
@@ -270,7 +270,7 @@
             this.Label_IlluminationXY.Name = "Label_IlluminationXY";
             this.Label_IlluminationXY.Size = new System.Drawing.Size(60, 20);
             this.Label_IlluminationXY.TabIndex = 0;
-            this.Label_IlluminationXY.Text = "XY";
+            this.Label_IlluminationXY.Text = "X-Y";
             this.Label_IlluminationXY.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Label_IlluminationXY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Label_Control_MouseDown);
             this.Label_IlluminationXY.MouseEnter += new System.EventHandler(this.Label_Control_MouseEnter);
@@ -286,7 +286,7 @@
             this.Label_Exposure.Name = "Label_Exposure";
             this.Label_Exposure.Size = new System.Drawing.Size(60, 20);
             this.Label_Exposure.TabIndex = 0;
-            this.Label_Exposure.Text = "Exp";
+            this.Label_Exposure.Text = "EXP";
             this.Label_Exposure.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Label_Exposure.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Label_Control_MouseDown);
             this.Label_Exposure.MouseEnter += new System.EventHandler(this.Label_Control_MouseEnter);
