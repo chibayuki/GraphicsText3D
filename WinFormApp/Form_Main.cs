@@ -2,7 +2,7 @@
 Copyright © 2018 chibayuki@foxmail.com
 
 3D绘图测试
-Version 18.10.2.1600
+Version 18.10.25.0000
 
 This file is part of "3D绘图测试" (GraphicsText3D)
 
@@ -332,7 +332,7 @@ namespace WinFormApp
 
             double Exp = Math.Max(-2, Math.Min(Exposure / 50, 2));
 
-            if (IlluminationDirection.IsEmpty)
+            if (IlluminationDirection.IsZero)
             {
                 for (int i = 0; i < 6; i++)
                 {
@@ -1089,7 +1089,7 @@ namespace WinFormApp
 
                 AffineMatrix3D = Com.Matrix.Multiply(matrixLeft, AffineMatrix3DCopy);
 
-                if (!Com.Matrix.IsNullOrNonMatrix(AffineMatrix3D))
+                if (!Com.Matrix.IsNullOrEmpty(AffineMatrix3D))
                 {
                     BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
                 }
@@ -1112,7 +1112,7 @@ namespace WinFormApp
 
                 AffineMatrix3D = Com.Matrix.Multiply(matrixLeft, AffineMatrix3DCopy);
 
-                if (!Com.Matrix.IsNullOrNonMatrix(AffineMatrix3D))
+                if (!Com.Matrix.IsNullOrEmpty(AffineMatrix3D))
                 {
                     BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
                 }
@@ -1135,7 +1135,7 @@ namespace WinFormApp
 
                 AffineMatrix3D = Com.Matrix.Multiply(matrixLeft, AffineMatrix3DCopy);
 
-                if (!Com.Matrix.IsNullOrNonMatrix(AffineMatrix3D))
+                if (!Com.Matrix.IsNullOrEmpty(AffineMatrix3D))
                 {
                     BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
                 }
