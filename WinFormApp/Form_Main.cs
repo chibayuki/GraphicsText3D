@@ -177,7 +177,7 @@ namespace WinFormApp
 
             double CubeDiag = Math.Min(ImageSize.Width, ImageSize.Height);
 
-            CubeSize = CubeSize.VectorNormalize * CubeDiag;
+            CubeSize = CubeSize.Normalize * CubeDiag;
 
             Bitmap PrjBmp = new Bitmap(Math.Max(1, (int)ImageSize.Width), Math.Max(1, (int)ImageSize.Height));
 
@@ -216,7 +216,7 @@ namespace WinFormApp
 
             //
 
-            double TrueLenDist3D = new Com.PointD(Screen.PrimaryScreen.Bounds.Size).VectorModule;
+            double TrueLenDist3D = new Com.PointD(Screen.PrimaryScreen.Bounds.Size).Module;
 
             Com.PointD3D PrjCenter3D = CubeCenter;
 
@@ -1031,7 +1031,7 @@ namespace WinFormApp
 
                 ((Label)sender).Text = "× " + ratio.ToString("F2");
 
-                CubeSize = Com.PointD3D.Max(new Com.PointD3D(0.001, 0.001, 0.001), new Com.PointD3D(CubeSizeCopy.X * ratio, CubeSizeCopy.Y, CubeSizeCopy.Z).VectorNormalize);
+                CubeSize = Com.PointD3D.Max(new Com.PointD3D(0.001, 0.001, 0.001), new Com.PointD3D(CubeSizeCopy.X * ratio, CubeSizeCopy.Y, CubeSizeCopy.Z).Normalize);
 
                 BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
             }
@@ -1049,7 +1049,7 @@ namespace WinFormApp
 
                 ((Label)sender).Text = "× " + ratio.ToString("F2");
 
-                CubeSize = Com.PointD3D.Max(new Com.PointD3D(0.001, 0.001, 0.001), new Com.PointD3D(CubeSizeCopy.X, CubeSizeCopy.Y * ratio, CubeSizeCopy.Z).VectorNormalize);
+                CubeSize = Com.PointD3D.Max(new Com.PointD3D(0.001, 0.001, 0.001), new Com.PointD3D(CubeSizeCopy.X, CubeSizeCopy.Y * ratio, CubeSizeCopy.Z).Normalize);
 
                 BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
             }
@@ -1067,7 +1067,7 @@ namespace WinFormApp
 
                 ((Label)sender).Text = "× " + ratio.ToString("F2");
 
-                CubeSize = Com.PointD3D.Max(new Com.PointD3D(0.001, 0.001, 0.001), new Com.PointD3D(CubeSizeCopy.X, CubeSizeCopy.Y, CubeSizeCopy.Z * ratio).VectorNormalize);
+                CubeSize = Com.PointD3D.Max(new Com.PointD3D(0.001, 0.001, 0.001), new Com.PointD3D(CubeSizeCopy.X, CubeSizeCopy.Y, CubeSizeCopy.Z * ratio).Normalize);
 
                 BackgroundWorker_RepaintBmpDelay.RunWorkerAsync();
             }
