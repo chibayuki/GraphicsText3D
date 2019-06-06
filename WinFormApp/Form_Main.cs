@@ -1,8 +1,8 @@
 ﻿/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-Copyright © 2018 chibayuki@foxmail.com
+Copyright © 2019 chibayuki@foxmail.com
 
-3D绘图测试
-Version 18.10.25.0000
+3D绘图测试 (GraphicsText3D)
+Version 19.5.25.1400
 
 This file is part of "3D绘图测试" (GraphicsText3D)
 
